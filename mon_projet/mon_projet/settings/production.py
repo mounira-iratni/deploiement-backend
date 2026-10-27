@@ -1,7 +1,10 @@
 
 import os
 import dj_database_url
+import sentry_sdk
 from .base import *
+import sentry_sdk
+from sentry_sdk.integrations.django import DjangoIntegration
 
 # Charger la clé secrète depuis les variables d'environnement
 SECRET_KEY = os.environ.get('SECRET_KEY')
@@ -27,3 +30,16 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 # Configuration CORS plus restrictive pour la production
 # On lit les origines autorisées depuis une variable d'environnement
 CORS_ALLOWED_ORIGINS = os.environ.get('CORS_ALLOWED_ORIGINS', '').split(',')
+
+
+
+SENTRY_DSN = os.environ.get('SENTRY_DSN')
+
+if SENTRY_DSN:
+    sentry_sdk.init(
+        dsn=SENTRY_DSN,
+        integrations=[DjangoIntegration()],
+        traces_sample_rate=1.0, # Capture 100% des transactions pour le monitoring de perf.
+        send_default_pii=True
+    )
+    
